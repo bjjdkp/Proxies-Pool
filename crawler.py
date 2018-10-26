@@ -1,18 +1,35 @@
 # --*-- coding:utf-8 --*--
 
+# 是否需要区分 http 和 https
+
+
+import time
 import redis
-import requests
-import pymongo
 import random
+import pymongo
+import logging
+import requests
+import telnetlib
 from lxml import etree
 from random import choice
 # from bs4 import BeautifulSoup
-import telnetlib
+
+DEBUG = True
+if DEBUG:
+    level = logging.DEBUG
+    logging.basicConfig(level=level,
+                        format="%(levelname)s %(asctime)s %(lineno)d:: %(message)s")
+else:
+    level = logging.INFO
+    filename = "./logfile/%s.log" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    logging.basicConfig(level=level,
+                        filename=filename,
+                        format="%(levelname)s %(asctime)s %(lineno)d:: %(message)s")
 
 
-class XiCiDaiLi(object):
+class Crawler(object):
     """
-    a spider for xicidaili
+    a spider for proxies
     """
     def __init__(self, proxy_type):
         self.base_url = "http://www.xicidaili.com/nn"
@@ -36,11 +53,20 @@ class XiCiDaiLi(object):
         self.proxy_type = proxy_type
 
     def save_result(self, usable_list):
+        """
+        save result to database
+        :param usable_list:
+        :return:
+        """
         print(usable_list)
-
         self.sheet.insert(dict(usable_list), check_keys=False)
 
     def is_usable(self, result):
+        """
+
+        :param result:
+        :return:
+        """
         usable_list = []
         for i in range(len(result)):
             try:
@@ -61,6 +87,23 @@ class XiCiDaiLi(object):
         ip_port = random.choice(ip_port_list)
         return ip_port[0], ip_port[1]
 
+    def xici(self):
+        """
+        a spider for xicidaili
+        :return:
+        """
+        logging.info("starting for xicidaili")
+        url = "http://www.xicidaili.com/nn"
+        html = requests.get(self.base_url, headers=self.headers).content
+
+        html = etree.HTML(html)
+        ip_list = html.xpath('//table//tr[position()>1]/td[2]/text()')
+        port_list = html.xpath('//table//tr[position()>1]/td[3]/text()')
+        type_list = html.xpath('//table//tr[position()>1]/td[6]/text()')
+
+
+
+
     def run(self):
         print("开始爬取西刺代理...")
         html = requests.get(self.base_url, headers=self.headers).content
@@ -70,6 +113,9 @@ class XiCiDaiLi(object):
         ip_list = html.xpath('//table//tr[position()>1]/td[2]/text()')
         port_list = html.xpath('//table//tr[position()>1]/td[3]/text()')
         type_list = html.xpath('//table//tr[position()>1]/td[6]/text()')
+
+
+
 
         # 根据"HTTP"和"HTTPS"两种类型
         http_ip_list = []
@@ -106,45 +152,20 @@ proxies = {
 
 
 def test():
-    url = "http://httpbin.org/get"
+    url_test = "http://httpbin.org/get"
+    url = "https://jobs.zhaopin.com/CC120833441J00041665009.htm"
     proxies = {
-        "http": "http://182.18.6.9:53281",
+        # "http": "http://182.18.6.9:53281",
         # "https": "https://182.18.6.9:53281",
     }
 
+    ip = requests.get(url_test, proxies=proxies).text
+    print(ip)
     res = requests.get(url, proxies=proxies).text
     print(res)
 
 
 test()
 
-# 获取
-# 存储
-# 检测
-# 接口
 
-
-MAX_SCORE = 100
-MIN_SCORE = 0
-INITIAL_SCORE = 10
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379
-REDIS_PASSWORD = None
-REDIS_KEY = "proxies"
-
-
-class RedisClient(object):
-    # proxies pool
-    def __init__(self, host=REDIS_HOST, port=REDIS_PORT, pwd=REDIS_PASSWORD):
-        """
-        initial the Redis
-        :param host: Redis host
-        :param port: Redis port
-        :param pwd: Redis password
-        """
-
-        self.db = redis.StrictRedis(host=host, port=port, password=pwd, decode_responses=True)
-
-    def add(self, ):
-        pass
 
