@@ -10,6 +10,7 @@ import pymongo
 import logging
 import requests
 import telnetlib
+import hashlib
 from lxml import etree
 from random import choice
 # from bs4 import BeautifulSoup
@@ -152,20 +153,46 @@ proxies = {
 
 
 def test():
-    url_test = "http://httpbin.org/get"
-    url = "https://jobs.zhaopin.com/CC120833441J00041665009.htm"
-    proxies = {
-        # "http": "http://182.18.6.9:53281",
-        # "https": "https://182.18.6.9:53281",
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
     }
 
-    ip = requests.get(url_test, proxies=proxies).text
-    print(ip)
-    res = requests.get(url, proxies=proxies).text
-    print(res)
+    http_test = "http://httpbin.org/get"
+    https_test = "https://httpbin.org/get"
+    url1 = "https://jobs.zhaopin.com/CC120833441J00041665009.htm"
+    url2 = "https://www.zhihu.com/question/47464143"
+    url3 = "http://123.206.38.21/"
+    proxies = {
+        # "http": "http://117.191.11.73:8080",
+        # "http": "http://180.104.107.46:45700",
+        # "https": "https://180.104.107.46:45700",
+
+        # "http": "http://112.91.218.21:9000",
+        # "http": "http://123.206.38.22:49672",
+        # "https": "https://123.206.38.22:49672",
+
+        "http": "http://61.191.212.242:38806",
+        "https": "https://61.191.212.242:38806",
+
+    }
+
+    http = requests.get(http_test, proxies=proxies, headers=headers)
+    print(http.url)
+    print(http.text)
+    # hl = hashlib.md5()
+    # hl.update(http.text.encode())
+    # print(hl.hexdigest())
+
+    https = requests.get(https_test, proxies=proxies, headers=headers)
+    print(https.status_code)
+    print(https.text)
 
 
 test()
-
+# headers = {
+#         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+#     }
+# res = requests.get(url="http://117.191.11.73:8080", headers=headers)
+# print(res)
 
 
