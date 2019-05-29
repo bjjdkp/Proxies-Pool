@@ -6,7 +6,7 @@ import redis
 MONGO_HOST = "localhost"
 MONGO_PORT = 27017
 MONGO_DATABASE = "proxy"
-MONGO_COLLECTION = "ip_list"
+MONGO_COLLECTION = "ip_source"
 MONGO_USR = "test"
 MONGO_PWD = "test"
 

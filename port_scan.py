@@ -1,17 +1,18 @@
 # --*-- coding:utf-8 --*--
-# TODO:选择nmap扫描或是python-nmap包扫描：速度和对当前机器的网络影响
 
 import re
+import json
 import time
 import nmap
+import aiohttp
+import asyncio
 import socket
+import datetime
 import requests
 import pymongo
 from libs.genips import GenIps
 from config import *
-from queue import Queue
-from concurrent.futures import ThreadPoolExecutor
-
+from aiomultiprocess import Pool
 
 
 class Pool(object):
@@ -34,8 +35,8 @@ class Pool(object):
 
     def get_ip_count(self):
         """
-        从delegated-apnic-latest中匹配出ip列表
-        :return: 列表(organisation, start_ip, ip_count) (CN,223.255.0.0,32768)
+        match ip list from delegated-apnic-latest
+        :return: a list such as (organisation, start_ip, ip_count) (CN,223.255.0.0,32768)
         """
         ip_count = []
         with open(self.apnic_path, 'r') as f:
@@ -50,31 +51,117 @@ class Pool(object):
 
         return ip_count
 
-    def scan_ip(self, ip):
+    async def scan_by_nmap(self, ip):
+        # nm = nmap.PortScanner()
+        # port_str = ",".join([str(x) for x in self.port_list])
+        # scan_res = nm.scan(ip, port_str)
+        # return scan_res
+        time.sleep(3)
+        # session = aiohttp.ClientSession()
+        # response = await session.get("http://127.0.0.1:5000/")
+        # result = await response.text()
+        # await session.close()
+        # return result
+
+
+    async def scan_ip(self, ip):
         """
-        使用nmap扫描ip端口是否开放
+        scan ip by nmap
         :param ip:
         :return:
         """
-        nm = nmap.PortScanner()
-        port_str = ",".join([str(x) for x in self.port_list])
-        res = nm.scan(ip, port_str)
-        print(res)
+        print("start scanning ip:%s" % ip)
+        a = await self.scan_by_nmap(ip)
+        print(a)
+        # nm = nmap.PortScanner()
+        # port_str = ",".join([str(x) for x in self.port_list])
+        # scan_res = await nm.scan(ip, port_str)
+        # self.parse_save_scaninfo(ip, scan_res)
+        # return scan_res
+
+    def check_proxy(self, ip, port):
+        """
+        check proxy toward http and https protocol
+        :param ip:
+        :param port:
+        :return:
+        """
+        pass
+
+    def parse_save_scaninfo(self, ip, scan_info):
+        """
+        parse and save scan info to database
+        :param ip
+        :param scan_info:
+        :return:
+        """
+
+        print("%s complete" % ip)
+        scan_stats = scan_info["nmap"]["scanstats"]
+        host_status = int(scan_info["nmap"]["scanstats"]["uphosts"])
+        ports = scan_info["scan"].get(ip)["tcp"] if host_status else []
+        now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        data = {
+            "host": ip,
+            "scan_stats": scan_stats,
+            "host_status": host_status,
+            "ports": ports,
+            "updated_time": now_time
+        }
+        self.collection.update_one(
+            {"host": data["host"]}, {"$set": data},
+            upsert=False,
+        )
+
+    def contrast_data(self, host):
+        """
+        judge the data is exist
+        :param host: ip
+        :return: whether the res in database
+        """
+
+        original_date = self.collection.find_one({"host": host})
+        if not original_date:
+            return "not exist"
+        else:
+            return "exist"
 
     def run(self):
-        ip_list = []
-        ip_count = self.get_ip_count()
-        for ip_item in ip_count[200:300]:
-            ip_list.extend(GenIps().gen(ip_item[1], ip_item[2]))
-
-        # 写入数据库
-        for ip in ip_list:
-            print(ip)
-            self.collection.insert({"host": ip})
+        # ip_list = []
+        # index = 0
+        # remote_index = self.collection.count()
+        # ip_count = self.get_ip_count()
+        # for ip_item in ip_count:
+        #     # ip_list.extend(GenIps().gen(ip_item[1], ip_item[2]))
+        #     ip_list = GenIps().gen(ip_item[1], ip_item[2])
+        #     # 写入数据库
+        #     print(index)
+        #     if (remote_index - index) < 100000:
+        #         for ip in ip_list:
+        #             if self.contrast_data(ip) == "exist":
+        #                 print("%s exists..." % ip)
+        #                 continue
+        #             else:
+        #                 print(ip)
+        #                 self.collection.insert({"host": ip})
+        #     else:
+        #         index += len(ip_list)
 
         # 扫描开放端口
-        # for ip in ip_list:
-        #     self.scan_ip(ip)
+        start_time = time.time()
+        ip_list = self.collection.find({}, {"host": 1, "_id": 0})[:3]
+        ip_list = [i["host"] for i in ip_list]
+
+        self.loop = asyncio.get_event_loop()
+        tasks = [self.scan_ip(ip) for ip in ip_list]
+        self.loop.run_until_complete(asyncio.wait(tasks))
+
+        end_time = time.time()
+        print('Cost time:', end_time - start_time)
+
+
+        # mongo 索引
+        # self.collection.ensure_index("host_status")
 
 
 # nm = nmap.PortScanner()
