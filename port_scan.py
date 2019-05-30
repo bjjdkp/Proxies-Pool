@@ -4,18 +4,17 @@ import re
 import json
 import time
 import nmap
-import aiohttp
+# import aiohttp
 import asyncio
-import socket
+# import socket
 import datetime
-import requests
+# import requests
 import pymongo
 from libs.genips import GenIps
 from config import *
-from aiomultiprocess import Pool
 
 
-class Pool(object):
+class ProxyPool(object):
 
     def __init__(self):
         self.apnic_path = "./files/delegated-apnic-latest.txt"
@@ -51,33 +50,20 @@ class Pool(object):
 
         return ip_count
 
-    async def scan_by_nmap(self, ip):
-        # nm = nmap.PortScanner()
-        # port_str = ",".join([str(x) for x in self.port_list])
-        # scan_res = nm.scan(ip, port_str)
-        # return scan_res
-        time.sleep(3)
-        # session = aiohttp.ClientSession()
-        # response = await session.get("http://127.0.0.1:5000/")
-        # result = await response.text()
-        # await session.close()
-        # return result
-
-
     async def scan_ip(self, ip):
         """
         scan ip by nmap
         :param ip:
         :return:
         """
-        print("start scanning ip:%s" % ip)
-        a = await self.scan_by_nmap(ip)
-        print(a)
-        # nm = nmap.PortScanner()
-        # port_str = ",".join([str(x) for x in self.port_list])
-        # scan_res = await nm.scan(ip, port_str)
-        # self.parse_save_scaninfo(ip, scan_res)
-        # return scan_res
+        async with self.semaphore:
+            print("start scanning ip:%s" % ip)
+            nm = nmap.PortScanner()
+            port_str = ",".join([str(x) for x in self.port_list])
+            scan_res = await self.loop.run_in_executor(None, nm.scan, ip, port_str)
+
+            self.parse_save_scaninfo(ip, scan_res)
+            return scan_res
 
     def check_proxy(self, ip, port):
         """
@@ -96,7 +82,6 @@ class Pool(object):
         :return:
         """
 
-        print("%s complete" % ip)
         scan_stats = scan_info["nmap"]["scanstats"]
         host_status = int(scan_info["nmap"]["scanstats"]["uphosts"])
         ports = scan_info["scan"].get(ip)["tcp"] if host_status else []
@@ -112,6 +97,7 @@ class Pool(object):
             {"host": data["host"]}, {"$set": data},
             upsert=False,
         )
+        print("%s complete" % ip)
 
     def contrast_data(self, host):
         """
@@ -147,17 +133,20 @@ class Pool(object):
         #     else:
         #         index += len(ip_list)
 
-        # 扫描开放端口
+
         start_time = time.time()
-        ip_list = self.collection.find({}, {"host": 1, "_id": 0})[:3]
+        ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})
         ip_list = [i["host"] for i in ip_list]
 
+        # 扫描开放端口 协程
         self.loop = asyncio.get_event_loop()
+        self.semaphore = asyncio.Semaphore(500)
         tasks = [self.scan_ip(ip) for ip in ip_list]
         self.loop.run_until_complete(asyncio.wait(tasks))
 
         end_time = time.time()
         print('Cost time:', end_time - start_time)
+
 
 
         # mongo 索引
@@ -169,5 +158,5 @@ class Pool(object):
 # print(ret)
 
 if __name__ == '__main__':
-    proxy_test = Pool()
+    proxy_test = ProxyPool()
     proxy_test.run()
