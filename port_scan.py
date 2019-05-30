@@ -135,7 +135,7 @@ class ProxyPool(object):
 
 
         start_time = time.time()
-        ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})
+        ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})[1000]
         ip_list = [i["host"] for i in ip_list]
 
         # 扫描开放端口 协程
