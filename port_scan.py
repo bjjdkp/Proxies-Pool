@@ -113,39 +113,39 @@ class ProxyPool(object):
             return "exist"
 
     def run(self):
-        # ip_list = []
-        # index = 0
-        # remote_index = self.collection.count()
-        # ip_count = self.get_ip_count()
-        # for ip_item in ip_count:
-        #     # ip_list.extend(GenIps().gen(ip_item[1], ip_item[2]))
-        #     ip_list = GenIps().gen(ip_item[1], ip_item[2])
-        #     # 写入数据库
-        #     print(index)
-        #     if (remote_index - index) < 100000:
-        #         for ip in ip_list:
-        #             if self.contrast_data(ip) == "exist":
-        #                 print("%s exists..." % ip)
-        #                 continue
-        #             else:
-        #                 print(ip)
-        #                 self.collection.insert({"host": ip})
-        #     else:
-        #         index += len(ip_list)
+        ip_list = []
+        index = 0
+        remote_index = self.collection.count()
+        ip_count = self.get_ip_count()
+        for ip_item in ip_count:
+            # ip_list.extend(GenIps().gen(ip_item[1], ip_item[2]))
+            ip_list = GenIps().gen(ip_item[1], ip_item[2])
+            # 写入数据库
+            print(index)
+            if (remote_index - index) < 100000:
+                for ip in ip_list:
+                    if self.contrast_data(ip) == "exist":
+                        print("%s exists..." % ip)
+                        continue
+                    else:
+                        print(ip)
+                        self.collection.insert({"host": ip})
+            else:
+                index += len(ip_list)
 
 
-        start_time = time.time()
-        ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})[1000]
-        ip_list = [i["host"] for i in ip_list]
-
-        # 扫描开放端口 协程
-        self.loop = asyncio.get_event_loop()
-        self.semaphore = asyncio.Semaphore(500)
-        tasks = [self.scan_ip(ip) for ip in ip_list]
-        self.loop.run_until_complete(asyncio.wait(tasks))
-
-        end_time = time.time()
-        print('Cost time:', end_time - start_time)
+        # start_time = time.time()
+        # ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})[1000]
+        # ip_list = [i["host"] for i in ip_list]
+        #
+        # # 扫描开放端口 协程
+        # self.loop = asyncio.get_event_loop()
+        # self.semaphore = asyncio.Semaphore(500)
+        # tasks = [self.scan_ip(ip) for ip in ip_list]
+        # self.loop.run_until_complete(asyncio.wait(tasks))
+        #
+        # end_time = time.time()
+        # print('Cost time:', end_time - start_time)
 
 
 
