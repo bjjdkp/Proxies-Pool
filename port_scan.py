@@ -112,8 +112,7 @@ class ProxyPool(object):
         else:
             return "exist"
 
-    def run(self):
-        ip_list = []
+    def ip_source(self):
         index = 0
         remote_index = self.collection.count()
         ip_count = self.get_ip_count()
@@ -133,29 +132,41 @@ class ProxyPool(object):
             else:
                 index += len(ip_list)
 
+    def pre_scan(self):
+        """
+        读取ip，准备扫描
+        :return:
+        """
+        ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})[:100]
+        ip_list = [i["host"] for i in ip_list]
 
-        # start_time = time.time()
-        # ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})[1000]
-        # ip_list = [i["host"] for i in ip_list]
-        #
-        # # 扫描开放端口 协程
-        # self.loop = asyncio.get_event_loop()
-        # self.semaphore = asyncio.Semaphore(500)
-        # tasks = [self.scan_ip(ip) for ip in ip_list]
-        # self.loop.run_until_complete(asyncio.wait(tasks))
-        #
-        # end_time = time.time()
-        # print('Cost time:', end_time - start_time)
+        # 扫描开放端口 协程
+        self.loop = asyncio.get_event_loop()
+        self.semaphore = asyncio.Semaphore(500)
+        tasks = [self.scan_ip(ip) for ip in ip_list]
+        self.loop.run_until_complete(asyncio.wait(tasks))
+
+    def pre_check(self):
+        """
+        从ip_source中过滤有开放端口的ip
+        :return:
+        """
+        ip_list = self.collection.find()
 
 
+    def run(self):
 
-        # mongo 索引
-        # self.collection.ensure_index("host_status")
+        # 保存apnic开放给中国的所有ip
+        # self.ip_source()
 
+        start_time = time.time()
+        # 扫描ip
+        self.pre_scan()
+        end_time = time.time()
+        print('Cost time:', end_time - start_time)
 
-# nm = nmap.PortScanner()
-# ret = nm.scan('115.239.210.26', '1-10000')
-# print(ret)
+        # 代理检测
+        # self.pre_check()
 
 if __name__ == '__main__':
     proxy_test = ProxyPool()
