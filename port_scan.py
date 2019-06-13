@@ -137,14 +137,15 @@ class ProxyPool(object):
         读取ip，准备扫描
         :return:
         """
-        ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})[:100]
-        ip_list = [i["host"] for i in ip_list]
+        while self.collection.find({"host_status": None}):
+            ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})[:10000]
+            ip_list = [i["host"] for i in ip_list]
 
-        # 扫描开放端口 协程
-        self.loop = asyncio.get_event_loop()
-        self.semaphore = asyncio.Semaphore(500)
-        tasks = [self.scan_ip(ip) for ip in ip_list]
-        self.loop.run_until_complete(asyncio.wait(tasks))
+            # 扫描开放端口 协程
+            self.loop = asyncio.get_event_loop()
+            self.semaphore = asyncio.Semaphore(500)
+            tasks = [self.scan_ip(ip) for ip in ip_list]
+            self.loop.run_until_complete(asyncio.wait(tasks))
 
     def pre_check(self):
         """
