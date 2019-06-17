@@ -84,7 +84,11 @@ class ProxyPool(object):
 
         scan_stats = scan_info["nmap"]["scanstats"]
         host_status = int(scan_info["nmap"]["scanstats"]["uphosts"])
-        ports = scan_info["scan"].get(ip)["tcp"] if host_status else []
+        ports = scan_info["scan"].get(ip)["tcp"] if host_status else {}
+        if ports:  # 原始数据key为int
+            for key in ports.keys():
+                ports[str(key)] = ports.pop(key)
+
         now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         data = {
             "host": ip,
@@ -138,7 +142,7 @@ class ProxyPool(object):
         :return:
         """
         while self.collection.find({"host_status": None}):
-            ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0})[:10000]
+            ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0}).limit(10000)
             ip_list = [i["host"] for i in ip_list]
 
             # 扫描开放端口 协程
