@@ -10,8 +10,10 @@ import asyncio
 import datetime
 # import requests
 import pymongo
-from libs.genips import GenIps
+import requests
+from utils.genips import GenIps
 from config import *
+from itertools import product
 
 
 class ProxyPool(object):
@@ -30,7 +32,6 @@ class ProxyPool(object):
         self.collection = self.db[self.collection_name]
 
         self.port_list = PORT_LIST
-
 
     def get_ip_count(self):
         """
@@ -64,15 +65,6 @@ class ProxyPool(object):
 
             self.parse_save_scaninfo(ip, scan_res)
             return scan_res
-
-    def check_proxy(self, ip, port):
-        """
-        check proxy toward http and https protocol
-        :param ip:
-        :param port:
-        :return:
-        """
-        pass
 
     def parse_save_scaninfo(self, ip, scan_info):
         """
@@ -132,7 +124,7 @@ class ProxyPool(object):
                         continue
                     else:
                         print(ip)
-                        self.collection.insert({"host": ip})
+                        self.collection.insert({"host": ip, "check_times": 0})
             else:
                 index += len(ip_list)
 
@@ -151,27 +143,44 @@ class ProxyPool(object):
             tasks = [self.scan_ip(ip) for ip in ip_list]
             self.loop.run_until_complete(asyncio.wait(tasks))
 
+
+
     def pre_check(self):
         """
         从ip_source中过滤有开放端口的ip
+        # TODO： ports不为空 添加标识字段
         :return:
         """
-        ip_list = self.collection.find()
+        ip_list = self.collection.find({"host_status": 1}, {"_id": 0}, no_cursor_timeout=True).limit(10000)
+        for ip_info in ip_list:
+            ip = ip_info["host"]
+            ports = ip_info["ports"].keys()
+            for item in product([ip], ports):
+                self.check_proxy(item[0], item[1])
 
 
     def run(self):
 
+
         # 保存apnic开放给中国的所有ip
         # self.ip_source()
 
-        start_time = time.time()
         # 扫描ip
-        self.pre_scan()
-        end_time = time.time()
-        print('Cost time:', end_time - start_time)
+        # start_time = time.time()
+        # self.pre_scan()
+        # end_time = time.time()
+        # print('Cost time:', end_time - start_time)
 
         # 代理检测
+        # TODO: 写入操作
+        # TODO：两个库，http 和 https
         # self.pre_check()
+
+        # 批量更改字段
+        # TODO：判定是否扫描过，判定是否进行过代理检测
+        # self.collection.update_many({}, {'$set': {'check_times': 0}})
+        # mongo索引
+        # self.collection.create_index("check_times")
 
 if __name__ == '__main__':
     proxy_test = ProxyPool()

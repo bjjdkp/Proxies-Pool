@@ -5,7 +5,8 @@ gen ips by ip and count
 
 
 class GenIps:
-    def i2n(self, i):
+    @staticmethod
+    def i2n(i):
         """
         ip to num
         :param i: ip
@@ -14,7 +15,8 @@ class GenIps:
         ip = [int(x) for x in i.split('.')]
         return ip[0] << 24 | ip[1] << 16 | ip[2] << 8 | ip[3]
 
-    def n2i(self, n):
+    @staticmethod
+    def n2i(n):
         """
         num to ip
         :param n: num
