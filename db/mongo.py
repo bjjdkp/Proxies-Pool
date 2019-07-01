@@ -25,7 +25,8 @@ class Mongo(object):
     def init_index(self, collection_name):
         index1 = pymongo.IndexModel([("host", 1)], unique=True)
         index2 = pymongo.IndexModel([("host_status", 1)])
-        self.db[collection_name].create_indexes([index1, index2])
+        index3 = pymongo.IndexModel([("check_status", 1)])
+        self.db[collection_name].create_indexes([index1, index2, index3])
 
 
 

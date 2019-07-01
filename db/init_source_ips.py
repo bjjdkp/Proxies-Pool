@@ -14,7 +14,7 @@ from config import *
 from utils.gen_ip import GenIps
 
 
-source_ips_path = "files/source-ips.txt"
+source_ips_path = SOURCE_IPS_PATH
 
 
 def _get_ip_count():
@@ -50,7 +50,7 @@ def _gen_source_ip(collection):
         if (remote_index - index) < 100000:
             for ip in ip_list:
                 try:
-                    collection.insert({"host": ip, "check_times": 0})
+                    collection.insert({"host": ip, "scan_times": 0, "check_status": 0})
                 except pymongo.errors.DuplicateKeyError as e:
                     print("ip exists: %s" % ip)
                 else:

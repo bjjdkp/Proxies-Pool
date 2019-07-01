@@ -2,11 +2,13 @@
 
 import redis
 
-# local databases
+# databases
 MONGO_HOST = "localhost"
 MONGO_PORT = 27017
-MONGO_DATABASE = "proxy"
-MONGO_COLLECTION = "ip_source"
+MONGO_DB_SOURCE = "proxy"
+MONGO_COLLECTION_SOURCE = "ip_source"
+MONGO_COLLECTION_HTTP = "http"
+MONGO_COLLECTION_HTTPS = "https"
 MONGO_USR = "test"
 MONGO_PWD = "test"
 
@@ -14,6 +16,7 @@ REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_PASSWORD = None
 
+# score for proxy
 MAX_SCORE = 100
 MIN_SCORE = 0
 INITIAL_SCORE = 10
@@ -24,9 +27,17 @@ PORT_LIST = [8080, 3128, 80, 53281, 4145, 1080, 8118, 8081, 9999,
              54321, 8181, 63141, 20183, 4153, 64312, 8082, 82,
              9090, 9797, 6666, 8090, 4550, 8000, 8088]
 
+# check url
+HTTP_CHECK_URL = "http://httpbin.org/get?show_env=1"
+HTTPS_CHECK_URL = "https://httpbin.org/get?show_env=1"
+
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
+
+# file path for source ips download from apnic
+SOURCE_IPS_PATH = "files/source-ips.txt"
+
 
 class RedisClient(object):
-    # proxies pool
     def __init__(self, host=REDIS_HOST, port=REDIS_PORT, pwd=REDIS_PASSWORD):
         """
         initial the Redis
