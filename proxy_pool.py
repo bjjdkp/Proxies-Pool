@@ -4,7 +4,7 @@ import gc
 import sys
 import getopt
 from db import init_source_ips
-from checkips import port_scan
+from checkips import port_scan, check_ip
 
 """
 
@@ -77,7 +77,7 @@ def execute(argv=None):
             port_scan.PortScan().run()
 
         elif o in ("-c", "--check"):
-            pass
+            check_ip.CheckIps().run()
 
         elif o in ("-u", "--use"):
             pass
