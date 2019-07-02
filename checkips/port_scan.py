@@ -26,10 +26,10 @@ class PortScan(object):
             port_str = ",".join([str(x) for x in self.port_list])
             scan_res = await self.loop.run_in_executor(None, nm.scan, ip, port_str)
 
-            self.parse_save_scaninfo(ip, scan_res)
+            self._parse_save_scaninfo(ip, scan_res)
             return scan_res
 
-    def parse_save_scaninfo(self, ip, scan_info):
+    def _parse_save_scaninfo(self, ip, scan_info):
         """
         parse and save scan info to database
         :param ip
@@ -71,13 +71,13 @@ class PortScan(object):
         else:
             return "exist"
 
-    def pre_scan(self):
+    def _pre_scan(self):
         """
         读取ip，准备扫描
         :return:
         """
-        while self.collection.find({"host_status": None}):
-            ip_list = self.collection.find({"host_status": None}, {"host": 1, "_id": 0}).limit(10000)
+        while self.collection.find({"host_status": {"$ne": 1}}):
+            ip_list = self.collection.find({"host_status": {"$ne": 1}}, {"host": 1, "_id": 0}).limit(10000)
             ip_list = list(ip_list)
             if len(ip_list) < 10000:
                 # TODO: 初次全量扫描后的策略
@@ -94,7 +94,7 @@ class PortScan(object):
     def run(self):
 
         # scan ips
-        self.pre_scan()
+        self._pre_scan()
 
 
 if __name__ == '__main__':
