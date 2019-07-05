@@ -19,18 +19,6 @@ import pymongo
 # res = requests.get(url, headers=headers, proxies=proxies)
 # print(res.text)
 
-# try:
-#     # a = 2/0
-#     res = requests.get('https://www.google.com/', timeout=3)
-# except TimeoutError as e:
-#     print(e)
-# # except requests.exceptions.ConnectionError as e:
-# #     print(e)
-# # except ZeroDivisionError as e:
-# #     print(e)
-# else:
-#     print(res)
-
 
 mongo_user = "test"
 mongo_pwd = "test"
@@ -43,4 +31,25 @@ db.authenticate(mongo_user, mongo_pwd,
                  mechanism='SCRAM-SHA-1')
 collection = db[collection_name]
 
-print(collection.count())
+print(collection.estimated_document_count())
+try:
+    collection.update_many(
+            {}, {"$unset": {"checked_ports": "", "check_status": ""}},
+            upsert=False,
+        )
+
+    # res = collection.find({"check_times":  {"$ne": 12}}).count()
+    # print(res)
+except pymongo.errors.DuplicateKeyError as e:
+    print(e)
+print(collection.estimated_document_count())
+
+# index1 = pymongo.IndexModel([("host", 1)], unique=True)
+# index2 = pymongo.IndexModel([("host_status", 1)])
+# collection.create_indexes([index1, index2])
+
+# collection.create_index([("host", 1)], unique=True)
+
+# collection.drop_indexes()
+# for i in collection.list_indexes():
+#     print(i)
