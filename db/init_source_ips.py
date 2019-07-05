@@ -9,7 +9,6 @@ import re
 import pymongo
 import requests
 from db import mongo
-from utils import gen_ip
 from config import *
 from utils.gen_ip import GenIps
 
@@ -50,7 +49,7 @@ def _gen_source_ip(collection):
         if (remote_index - index) < 100000:
             for ip in ip_list:
                 try:
-                    collection.insert({"host": ip, "scan_times": 0, "check_status": 0})
+                    collection.insert({"host": ip, "scan_times": 0})
                 except pymongo.errors.DuplicateKeyError as e:
                     print("ip exists: %s" % ip)
                 else:
