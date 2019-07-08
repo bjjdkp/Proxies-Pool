@@ -26,6 +26,7 @@ PORT_LIST = [8080, 3128, 80, 53281, 4145, 1080, 8118, 8081, 9999,
              9090, 9797, 6666, 8090, 4550, 8000, 8088]
 
 # check url
+# TODO: build check server
 HTTP_CHECK_URL = "http://httpbin.org/get?show_env=1"
 HTTPS_CHECK_URL = "https://httpbin.org/get?show_env=1"
 
