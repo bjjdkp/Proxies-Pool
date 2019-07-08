@@ -2,7 +2,6 @@
 
 # 代理检测
 
-import time
 import json
 import asyncio
 # import aiohttp
@@ -23,10 +22,10 @@ class CheckIps(object):
         self.https_check_url = HTTPS_CHECK_URL
 
     def _pre_check(self):
-        # while self.collection_source.find({"check_status": {"$ne": 1}}):
-            ip_list = self.collection_source.find({"check_status": {"$ne": 1}, "host_status": 1}, {"_id": 0}).limit(10)
+        while self.collection_source.find({"check_status": {"$ne": 1}}):
+            ip_list = self.collection_source.find({"check_status": {"$ne": 1}, "host_status": 1}, {"_id": 0}).limit(100)
             ip_list = list(ip_list)
-            if len(ip_list) < 1000:
+            if len(ip_list) < 100:
                 # TODO: 初次全量检测后的策略
                 pass
 
@@ -41,7 +40,6 @@ class CheckIps(object):
 
                 tasks.extend([asyncio.ensure_future(self.check_ip(item[0], item[1])) for item in product([ip], ports_list)])
 
-            print(tasks)
             self.loop = asyncio.get_event_loop()
             # self.semaphore = asyncio.Semaphore(500)
             self.loop.run_until_complete(asyncio.wait(tasks))
@@ -129,9 +127,7 @@ class CheckIps(object):
         })
 
     def run(self):
-        s_time = time.time()
         self._pre_check()
-        print("cost: %s" % (time.time() - s_time))
 
 
 if __name__ == '__main__':
