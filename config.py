@@ -1,7 +1,5 @@
 # --*-- coding:utf-8 --*--
 
-import redis
-
 # databases
 MONGO_HOST = "localhost"
 MONGO_PORT = 27017
@@ -36,17 +34,3 @@ USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36
 # file path for source ips download from apnic
 SOURCE_IPS_PATH = "files/source-ips.txt"
 
-
-class RedisClient(object):
-    def __init__(self, host=REDIS_HOST, port=REDIS_PORT, pwd=REDIS_PASSWORD):
-        """
-        initial the Redis
-        :param host: Redis host
-        :param port: Redis port
-        :param pwd: Redis password
-        """
-
-        self.db = redis.StrictRedis(host=host, port=port, password=pwd, decode_responses=True)
-
-    def add(self, ):
-        pass
