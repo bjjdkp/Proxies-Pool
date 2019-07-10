@@ -22,8 +22,8 @@ class CheckIps(object):
         self.https_check_url = HTTPS_CHECK_URL
 
     def _pre_check(self):
-        while self.collection_source.find({"check_status": {"$ne": 1}}):
-            ip_list = self.collection_source.find({"check_status": {"$ne": 1}, "host_status": 1}, {"_id": 0}).limit(100)
+        while self.collection_source.count_documents({"check_status": 0, "host_status": 1}):
+            ip_list = self.collection_source.find({"check_status": 0, "host_status": 1}, {"_id": 0}).limit(100)
             ip_list = list(ip_list)
             if len(ip_list) < 100:
                 # TODO: 初次全量检测后的策略
@@ -52,7 +52,7 @@ class CheckIps(object):
             return requests.get(url=url,
                                 headers=headers,
                                 proxies=proxies,
-                                timeout=10)
+                                timeout=15)
         except requests.exceptions.ConnectTimeout:
             print("ERROR: ConnectTimeout [%s | %s]" % (url, proxies))
         except requests.exceptions.ProxyError:
@@ -118,7 +118,7 @@ class CheckIps(object):
         else:
             mongo_conn = self.collection_https
 
-        print("SUCCESS: [%s, %s]" % (ip, port))
+        print("SUCCESS: [%s, %s, %s]" % (protocol_dict[res["headers"]["X-Forwarded-Port"]], ip, port))
         mongo_conn.insert_one({
             "ip": ip,
             "port": port,
