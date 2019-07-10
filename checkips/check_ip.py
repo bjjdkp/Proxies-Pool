@@ -54,13 +54,13 @@ class CheckIps(object):
                                 proxies=proxies,
                                 timeout=10)
         except requests.exceptions.ConnectTimeout:
-            print("ERROR: ConnectTimeout %s" % proxies)
+            print("ERROR: ConnectTimeout [%s | %s]" % (url, proxies))
         except requests.exceptions.ProxyError:
-            print("ERROR: ProxyError %s" % proxies)
+            print("ERROR: ProxyError [%s | %s]" % (url, proxies))
         except requests.exceptions.ReadTimeout:
-            print("ERROR: ReadTimeout %s" % proxies)
+            print("ERROR: ReadTimeout [%s | %s]" % (url, proxies))
         except Exception as e:
-            print("ERROR: %s %s" % (e, proxies))
+            print("ERROR: [%s] [%s | %s ]" % (e, url, proxies))
 
     async def check_ip(self, ip, port):
         print("start check %s %s" % (ip, port))
@@ -113,13 +113,13 @@ class CheckIps(object):
 
         anonymity = 1 if res["headers"]["X-Real-Ip"] == ip else 0
 
-        if protocol_dict[res["headers"]["X-Forwarded-Port"]] == "80":
+        if protocol_dict[res["headers"]["X-Forwarded-Port"]] == "http":
             mongo_conn = self.collection_http
         else:
             mongo_conn = self.collection_https
 
         print("SUCCESS: [%s, %s]" % (ip, port))
-        mongo_conn.insert({
+        mongo_conn.insert_one({
             "ip": ip,
             "port": port,
             "anonymity": anonymity,
