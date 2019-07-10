@@ -95,7 +95,6 @@ class CheckIps(object):
         self.collection_source.update_one(
             {"host": ip}, {"$set": {"checked_ports": checked_ports,
                                     "check_status": check_status}},
-            upsert=False,
         )
 
         if not response or response.status_code != 200:

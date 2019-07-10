@@ -54,7 +54,6 @@ class PortScan(object):
         }
         self.collection.update_one(
             {"host": data["host"]}, {"$set": data, "$inc": {"scan_times": 1}},
-            upsert=False,
         )
         print("scan complete: %s" % ip)
 
