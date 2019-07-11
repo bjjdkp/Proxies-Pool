@@ -24,7 +24,9 @@ class PortScan(object):
             print("start scanning ip:%s" % ip)
             nm = nmap.PortScanner()
             port_str = ",".join([str(x) for x in self.port_list])
-            scan_res = await self.loop.run_in_executor(None, nm.scan, ip, port_str)
+            scan_res = await self.loop.run_in_executor(
+                None, nm.scan, ip, port_str
+            )
 
             self._parse_save_scaninfo(ip, scan_res)
             return scan_res
@@ -53,22 +55,9 @@ class PortScan(object):
             "updated_time": now_time
         }
         self.collection.update_one(
-            {"host": data["host"]}, {"$set": data, "$inc": {"scan_times": 1}},
+            {"host": data["host"]}, {"$set": data},
         )
         print("scan complete: %s" % ip)
-
-    def contrast_data(self, host):
-        """
-        judge the data is exist
-        :param host: ip
-        :return: whether the res in database
-        """
-
-        original_date = self.collection.find_one({"host": host})
-        if not original_date:
-            return "not exist"
-        else:
-            return "exist"
 
     def _pre_scan(self):
         """
@@ -76,11 +65,12 @@ class PortScan(object):
         :return:
         """
         while self.collection.find({"host_status": {"$ne": 1}}):
-            ip_list = self.collection.find({"host_status": {"$ne": 1}}, {"host": 1, "_id": 0}).limit(10000)
+            ip_list = self.collection.find(
+                {"host_status": {"$ne": 1}},
+                {"host": 1, "_id": 0}
+            ).limit(10000)
+
             ip_list = list(ip_list)
-            if len(ip_list) < 10000:
-                # TODO: 初次全量扫描后的策略
-                pass
             ip_list = [i["host"] for i in ip_list]
 
             # 扫描开放端口
@@ -88,7 +78,6 @@ class PortScan(object):
             self.semaphore = asyncio.Semaphore(500)
             tasks = [self.scan_ip(ip) for ip in ip_list]
             self.loop.run_until_complete(asyncio.wait(tasks))
-
 
     def run(self):
 
