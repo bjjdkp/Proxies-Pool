@@ -122,6 +122,7 @@ class CheckIps(object):
             "ip": ip,
             "port": port,
             "anonymity": anonymity,
+            "weight": DEFAULT_WEIGHT,
             "check_date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
         })
 
