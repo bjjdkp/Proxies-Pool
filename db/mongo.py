@@ -69,7 +69,7 @@ class Mongo(object):
             print("代理池枯竭了。。。")
             return
         ip_list.sort(key=lambda x: x["weight"], reverse=True)
-        pick_range = ip_list[:len(ip_list)//3]
+        pick_range = ip_list[:len(ip_list)//3] if len(ip_list) > 3 else ip_list
         return random.choice(pick_range)
 
     def get_all(self, collection_name):
