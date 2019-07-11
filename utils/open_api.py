@@ -1,6 +1,5 @@
 # --*-- coding:utf-8 --*--
 
-import json
 from db import mongo
 from flask import Flask, g, request
 
