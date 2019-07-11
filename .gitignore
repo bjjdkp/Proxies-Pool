@@ -105,3 +105,6 @@ venv.bak/
 
 # MacOs
 .DS_Store
+
+# test files
+/archives
