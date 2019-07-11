@@ -67,7 +67,7 @@ class Mongo(object):
         ip_list = list(self.db[collection_name].find({}, {"_id": 0}))
         if not ip_list:
             print("代理池枯竭了。。。")
-            return
+            return "代理池枯竭了。。。"
         ip_list.sort(key=lambda x: x["weight"], reverse=True)
         pick_range = ip_list[:len(ip_list)//3] if len(ip_list) > 3 else ip_list
         return random.choice(pick_range)
