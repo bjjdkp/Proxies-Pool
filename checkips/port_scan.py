@@ -66,8 +66,7 @@ class PortScan(object):
         """
         while self.collection.find({"host_status": {"$ne": 1}}):
             ip_list = self.collection.find(
-                {"host_status": {"$ne": 1}},
-                {"host": 1, "_id": 0}
+                {"host_status": {"$ne": 1}}, {"host": 1, "_id": 0}
             ).limit(10000)
 
             ip_list = list(ip_list)

@@ -22,26 +22,30 @@ class CheckIps(object):
         self.https_check_url = HTTPS_CHECK_URL
 
     def _pre_check(self):
-        while self.collection_source.count_documents({"check_status": 0, "host_status": 1}):
-            ip_list = self.collection_source.find({"check_status": 0, "host_status": 1}, {"_id": 0}).limit(100)
+        while self.collection_source.count_documents(
+                {"check_status": 0, "host_status": 1}
+        ):
+            ip_list = self.collection_source.find(
+                {"check_status": 0, "host_status": 1}, {"_id": 0}
+            ).limit(100)
             ip_list = list(ip_list)
-            if len(ip_list) < 100:
-                # TODO: 初次全量检测后的策略
-                pass
 
             tasks = []
             for ip_info in ip_list:
                 ip = ip_info["host"]
                 ports_list = ip_info["ports"].keys()
-                checked_ports = self.collection_source.find_one({"host": ip}).get("checked_ports", [])
+                checked_ports = self.collection_source.find_one(
+                    {"host": ip}
+                ).get("checked_ports", [])
                 ports_list = [p for p in ports_list if p not in checked_ports]
                 if not ports_list:
                     continue
 
-                tasks.extend([asyncio.ensure_future(self.check_ip(item[0], item[1])) for item in product([ip], ports_list)])
+                tasks.extend([asyncio.ensure_future(
+                    self.check_ip(item[0], item[1])
+                ) for item in product([ip], ports_list)])
 
             self.loop = asyncio.get_event_loop()
-            # self.semaphore = asyncio.Semaphore(500)
             self.loop.run_until_complete(asyncio.wait(tasks))
 
     def send_req(self, url=None, proxies=None):
@@ -73,20 +77,28 @@ class CheckIps(object):
         }
         loop = asyncio.get_running_loop()
         for url in [http_url, https_url]:
-            response = await loop.run_in_executor(None, self.send_req, url, proxies)
+            response = await loop.run_in_executor(
+                None, self.send_req, url, proxies
+            )
             await self.check_res(response, ip, port)
 
         # aiohttp 暂时不支持https代理
         # async with aiohttp.ClientSession() as session:
         #     async with session.get(
-        #         url=http_url, headers=headers, proxy=proxies["http"], timeout=10
+        #         url=http_url,headers=headers,proxy=proxies["http"],timeout=10
         #     ) as resp:
         #         await self.check_res(resp, ip, port)
 
     async def check_res(self, response, ip, port):
 
-        checked_ports = self.collection_source.find_one({"host": ip}).get("checked_ports", [])
-        opened_ports = self.collection_source.find_one({"host": ip})["ports"].keys()
+        checked_ports = self.collection_source.find_one(
+            {"host": ip}
+        ).get("checked_ports", [])
+
+        opened_ports = self.collection_source.find_one(
+            {"host": ip}
+        )["ports"].keys()
+
         if port not in checked_ports:
             checked_ports.append(port)
 
@@ -117,7 +129,8 @@ class CheckIps(object):
         else:
             mongo_conn = self.collection_https
 
-        print("SUCCESS: [%s, %s, %s]" % (protocol_dict[res["headers"]["X-Forwarded-Port"]], ip, port))
+        print("SUCCESS: [%s, %s, %s]" %
+              (protocol_dict[res["headers"]["X-Forwarded-Port"]], ip, port))
         mongo_conn.insert_one({
             "ip": ip,
             "port": port,
