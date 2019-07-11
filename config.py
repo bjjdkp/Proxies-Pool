@@ -35,3 +35,5 @@ USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36
 # file path for source ips download from apnic
 SOURCE_IPS_PATH = "files/source-ips.txt"
 
+# default weight for proxies
+DEFAULT_WEIGHT = 30
