@@ -4,7 +4,7 @@ import gc
 import sys
 import getopt
 from db import init_source_ips
-from checkips import port_scan, check_ip
+from scheduler import port_scan, check_ip, scheduler
 
 """
 
