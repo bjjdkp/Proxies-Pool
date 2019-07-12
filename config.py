@@ -32,6 +32,8 @@ HTTPS_CHECK_URL = "https://httpbin.org/get?show_env=1"
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
 
+# apnic file url
+APNIC_URL = "http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
 # file path for source ips download from apnic
 SOURCE_IPS_PATH = "files/source-ips.txt"
 
