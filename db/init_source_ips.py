@@ -11,6 +11,7 @@ import requests
 from db import mongo
 from config import *
 from utils.gen_ip import GenIps
+from utils.file_downloader import Downloader
 
 
 source_ips_path = SOURCE_IPS_PATH
@@ -77,7 +78,7 @@ def _get_apnic_file():
 def init_source_ips():
     collection_name = MONGO_COLLECTION_SOURCE
     mongo_conn = mongo.Mongo().get_conn(collection_name)
-    _get_apnic_file()
+    Downloader(APNIC_URL).download()
     _gen_source_ip(mongo_conn)
     mongo.Mongo().init_index(collection_name)
 
