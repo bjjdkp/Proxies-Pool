@@ -21,14 +21,16 @@ source_ips_path = SOURCE_IPS_PATH
 def _get_ip_count():
     """
     match ip list from delegated-apnic-latest
-    :return: a list such as (organisation, start_ip, ip_count) (CN,223.255.0.0,32768)
+    :return: a list such as
+                    (organisation, start_ip, ip_count) (CN,223.255.0.0,32768)
     """
     ip_count = []
     with open(source_ips_path, 'r') as f:
         lines = f.readlines()
     for line in lines:
         line_search = re.search(
-            r'apnic\|(.*?)\|ipv4\|(.*?)\|(.*?)\|\d+\|[allocated|assigned]+', line)
+            r'apnic\|(.*?)\|ipv4\|(.*?)\|(.*?)\|\d+\|[allocated|assigned]+',
+            line)
         if not line_search:
             continue
         organisation = line_search.group(1)
@@ -89,4 +91,3 @@ def init_source_ips():
     Downloader(APNIC_URL).download()
     _gen_source_ip(mongo_conn)
     mongo.Mongo().init_index(collection_name)
-
