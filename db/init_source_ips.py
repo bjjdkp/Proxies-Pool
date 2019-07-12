@@ -10,6 +10,7 @@ import pymongo
 import requests
 from db import mongo
 from config import *
+from tqdm import tqdm
 from utils.gen_ip import GenIps
 from utils.file_downloader import Downloader
 
@@ -43,25 +44,32 @@ def _gen_source_ip(collection):
     index = 0
     remote_index = collection.count()
     ip_count = _get_ip_count()
-    for ip_item in ip_count:
-        # ip_list.extend(GenIps().gen(ip_item[1], ip_item[2]))
-        ip_list = GenIps().gen(ip_item[1], ip_item[2])
-        print("source ip index: %s" % index)
-        if (remote_index - index) < 100000:
-            for ip in ip_list:
-                try:
-                    collection.insert_one({
-                        "host": ip,
-                        "host_status": 0,
-                        "check_status": 0,
-                        "block_times": 0,
-                    })
-                except pymongo.errors.DuplicateKeyError as e:
-                    print("ip exists: %s" % ip)
-                else:
-                    print("insert ip: %s" % ip)
-        else:
-            index += len(ip_list)
+
+    with tqdm(
+            bar_format="{postfix[0]} {postfix[1][value]:>5}",
+            postfix=["Estimated ips count:", dict(value=0)]
+    ) as t:
+
+        for ip_item in ip_count:
+            ip_list = GenIps().gen(ip_item[1], ip_item[2])
+            if (remote_index - index) < 1000000:
+                for ip in tqdm(ip_list, desc="inserting source ips"):
+                    try:
+                        collection.insert_one({
+                            "host": ip,
+                            "host_status": 0,
+                            "check_status": 0,
+                            "block_times": 0,
+                        })
+                    except pymongo.errors.DuplicateKeyError as e:
+                        pass
+                    finally:
+                        t.postfix[1]["value"] += 1
+                        t.update()
+            else:
+                index += len(ip_list)
+                t.postfix[1]["value"] = index
+                t.update()
 
 
 def _get_apnic_file():
