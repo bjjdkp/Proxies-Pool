@@ -61,7 +61,6 @@ def _gen_source_ip(collection):
                             "host": ip,
                             "host_status": 0,
                             "check_status": 0,
-                            "block_times": 0,
                         })
                     except pymongo.errors.DuplicateKeyError as e:
                         pass
