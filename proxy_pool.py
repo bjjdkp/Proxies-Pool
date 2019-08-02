@@ -19,7 +19,7 @@ from scheduler import port_scan, check_ip, scheduler
 实时维护，以接口形式开放
 4. 开放api，并根据结果引入代理评分机制，持续更新代理池  -u
 
-5. 执行所有操作，相对-u增加步骤1下载文件    -a
+5. 执行所有操作，相对-u增加步骤1    -a
 """
 
 """
