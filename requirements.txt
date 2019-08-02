@@ -1,4 +1,5 @@
+flask
 python-nmap
 pymongo
-redis
 requests
+tqdm
