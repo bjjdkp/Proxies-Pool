@@ -3,7 +3,7 @@
 import nmap
 import asyncio
 import datetime
-from config import *
+from settings import *
 from db import mongo
 
 

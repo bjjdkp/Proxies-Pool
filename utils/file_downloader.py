@@ -2,7 +2,7 @@
 
 from urllib.request import urlretrieve
 from tqdm import tqdm
-from config import *
+from settings import *
 
 
 class TqdmUpTo(tqdm):

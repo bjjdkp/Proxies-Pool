@@ -2,7 +2,7 @@
 
 import random
 import pymongo
-from config import *
+from settings import *
 
 
 class Mongo(object):
