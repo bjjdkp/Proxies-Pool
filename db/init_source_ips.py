@@ -9,7 +9,7 @@ import re
 import pymongo
 import requests
 from db import mongo
-from settings import *
+from config import *
 from tqdm import tqdm
 from utils.gen_ip import GenIps
 from utils.file_downloader import Downloader

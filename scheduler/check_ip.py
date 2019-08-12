@@ -8,7 +8,7 @@ import asyncio
 import requests
 import datetime
 from db import mongo
-from settings import *
+from config import *
 from itertools import product
 from collections import Counter
 
