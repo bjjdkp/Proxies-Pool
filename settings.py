@@ -1,7 +1,7 @@
 # --*-- coding:utf-8 --*--
 
 # databases
-MONGO_HOST = "localhost"
+MONGO_HOST = "localhost1"
 MONGO_PORT = 27017
 MONGO_DB_SOURCE = "proxy"
 MONGO_COLLECTION_SOURCE = "ip_source"
@@ -38,7 +38,7 @@ DEFAULT_WEIGHT = 30
 
 # local_settings
 try:
-    from .local_settings import *
+    from local_settings import *
 except ImportError:
     pass
 
