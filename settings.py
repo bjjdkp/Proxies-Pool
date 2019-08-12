@@ -35,3 +35,10 @@ SOURCE_IPS_PATH = "files/source-ips.txt"
 
 # default weight for proxies
 DEFAULT_WEIGHT = 30
+
+# local_settings
+try:
+    from .local_settings import *
+except ImportError:
+    pass
+
