@@ -1,10 +1,9 @@
 # --*-- coding:utf-8 --*--
 
 """
-下载更新文件
-从数据库读取
-
+Download and generate source ips.
 """
+
 import re
 import pymongo
 import requests
@@ -43,6 +42,11 @@ def _get_ip_count():
 
 
 def _gen_source_ip(collection):
+    """
+    gen source ip and save to database
+    :param collection: collection name for source ips
+    :return:
+    """
     index = 0
     remote_index = collection.count()
     ip_count = _get_ip_count()
@@ -74,6 +78,7 @@ def _gen_source_ip(collection):
 
 
 def _get_apnic_file():
+    # not used for now
     print("downloading apnic file...")
     file_url = "http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest"
 
