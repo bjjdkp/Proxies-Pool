@@ -1,5 +1,9 @@
 # --*-- coding:utf-8 --*--
 
+"""
+Display progress in screen when downloading files.
+"""
+
 from urllib.request import urlretrieve
 from tqdm import tqdm
 from settings import *
