@@ -17,7 +17,7 @@ from scheduler import port_scan, check_ip, scheduler
 
 
 实时维护，以接口形式开放
-4. 开放api，并根据结果引入代理评分机制，持续更新代理池  -u
+4. 开放api，并根据结果引入代理评分机制，持续更新代理池  -o
 
 5. 执行所有操作，相对-u增加步骤1    -a
 """
@@ -32,7 +32,7 @@ def _get_commands_list():
         ("-s", "Download ip file from apnic,generate all ips"),
         ("-n", "scan by nmap"),
         ("-c", "check proxy for scan result"),
-        ("-u", "open api for proxy check result"),
+        ("-o", "open api for proxy check result"),
         ("-a", "execute all commands in order"),
     ]
 
@@ -78,7 +78,7 @@ def execute(argv=None):
         elif o in ("-c", "--check"):
             check_ip.CheckIps().run()
 
-        elif o in ("-u", "--use"):
+        elif o in ("-o", "--open"):
             pass
 
         elif o in ("-a", "--all"):
