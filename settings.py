@@ -1,7 +1,7 @@
 # --*-- coding:utf-8 --*--
 
 # databases
-MONGO_HOST = "localhost1"
+MONGO_HOST = "localhost"
 MONGO_PORT = 27017
 MONGO_DB_SOURCE = "proxy"
 MONGO_COLLECTION_SOURCE = "ip_source"
