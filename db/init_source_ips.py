@@ -64,6 +64,7 @@ def _gen_source_ip(collection):
                         collection.insert_one({
                             "host": ip,
                             "host_status": 0,
+                            "scan_status": 0,
                             "check_status": 0,
                         })
                     except pymongo.errors.DuplicateKeyError as e:

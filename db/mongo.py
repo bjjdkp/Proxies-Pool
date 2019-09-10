@@ -117,11 +117,12 @@ class Mongo(object):
             index1 = pymongo.IndexModel([("host", 1)], unique=True)
         index2 = pymongo.IndexModel([("host_status", 1)])
         index3 = pymongo.IndexModel([("check_status", 1)])
-        self.db[collection_name].create_indexes([index1, index2, index3])
+        index4 = pymongo.IndexModel([("scan_status", 1)])
+        self.db[collection_name].create_indexes(
+            [index1, index2, index3, index4]
+        )
 
 
 if __name__ == '__main__':
     test = Mongo()
     test.init_index('http')
-
-
