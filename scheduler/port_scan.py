@@ -20,16 +20,16 @@ class PortScan(object):
         :param ip:
         :return:
         """
-        async with self.semaphore:
-            print("start scanning ip:%s" % ip)
-            nm = nmap.PortScanner()
-            port_str = ",".join([str(x) for x in self.port_list])
-            scan_res = await self.loop.run_in_executor(
-                None, nm.scan, ip, port_str
-            )
+        # async with self.semaphore:
+        print("start scanning ip:%s" % ip)
+        nm = nmap.PortScanner()
+        port_str = ",".join([str(x) for x in self.port_list])
+        scan_res = await self.loop.run_in_executor(
+            None, nm.scan, ip, port_str
+        )
 
-            self._parse_save_scaninfo(ip, scan_res)
-            return scan_res
+        self._parse_save_scaninfo(ip, scan_res)
+        return scan_res
 
     def _parse_save_scaninfo(self, ip, scan_info):
         """
@@ -74,7 +74,7 @@ class PortScan(object):
 
             # scan open ports
             self.loop = asyncio.get_event_loop()
-            self.semaphore = asyncio.Semaphore(500)
+            # self.semaphore = asyncio.Semaphore(500)
             tasks = [self.scan_ip(ip) for ip in ip_list]
             self.loop.run_until_complete(asyncio.wait(tasks))
 
