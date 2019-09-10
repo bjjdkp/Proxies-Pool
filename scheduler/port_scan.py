@@ -42,7 +42,7 @@ class PortScan(object):
         scan_stats = scan_info["nmap"]["scanstats"]
         host_status = int(scan_info["nmap"]["scanstats"]["uphosts"])
         ports = scan_info["scan"].get(ip)["tcp"] if host_status else {}
-        if ports:  # 原始数据key为int
+        if ports:  # source data key is int
             for key in ports.keys():
                 ports[str(key)] = ports.pop(key)
 
@@ -61,18 +61,18 @@ class PortScan(object):
 
     def _pre_scan(self):
         """
-        读取ip，准备扫描
+        extract ip from database for scanning
         :return:
         """
-        while self.collection.find({"host_status": {"$ne": 1}}):
+        while self.collection.find({"host_status": 0}):
             ip_list = self.collection.find(
-                {"host_status": {"$ne": 1}}, {"host": 1, "_id": 0}
+                {"host_status": 0}, {"host": 1, "_id": 0}
             ).limit(10000)
 
             ip_list = list(ip_list)
             ip_list = [i["host"] for i in ip_list]
 
-            # 扫描开放端口
+            # scan open ports
             self.loop = asyncio.get_event_loop()
             self.semaphore = asyncio.Semaphore(500)
             tasks = [self.scan_ip(ip) for ip in ip_list]
