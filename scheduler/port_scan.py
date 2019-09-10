@@ -14,6 +14,22 @@ class PortScan(object):
         self.source_ips_path = SOURCE_IPS_PATH
         self.collection = mongo.Mongo().get_conn(MONGO_COLLECTION_SOURCE)
         self.port_list = PORT_LIST
+        self.port_str = self._get_ports()
+
+    def _get_ports(self):
+        """
+        parse ports specify in settings to suited format for nmap
+        :return:
+        """
+        port_list = set()
+        for i in self.port_list:
+            if "-" in i:
+                for j in range(int(i.split("-")[0]), int(i.split("-")[1])):
+                    port_list.add(str(j))
+            else:
+                port_list.add(str(i))
+        port_str = ",".join(port_list)
+        return port_str
 
     async def scan_ip(self, ip):
         """
@@ -24,16 +40,9 @@ class PortScan(object):
         # async with self.semaphore:
         print("start scanning ip:%s" % ip)
         nm = nmap.PortScanner()
-        port_list = set()
-        for i in self.port_list:
-            if "-" in i:
-                for j in range(int(i.split("-")[0]), int(i.split("-")[1])):
-                    port_list.add(str(j))
-            else:
-                port_list.add(str(i))
-        port_str = ",".join(port_list)
+
         scan_res = await self.loop.run_in_executor(
-            None, nm.scan, ip, port_str
+            None, nm.scan, ip, self.port_str
         )
 
         self._parse_save_scaninfo(ip, scan_res)
