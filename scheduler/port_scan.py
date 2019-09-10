@@ -2,6 +2,7 @@
 
 import nmap
 import asyncio
+import logging
 import datetime
 from settings import *
 from db import mongo
@@ -23,7 +24,14 @@ class PortScan(object):
         # async with self.semaphore:
         print("start scanning ip:%s" % ip)
         nm = nmap.PortScanner()
-        port_str = ",".join([str(x) for x in self.port_list])
+        port_list = set()
+        for i in self.port_list:
+            if "-" in i:
+                for j in range(int(i.split("-")[0]), int(i.split("-")[1])):
+                    port_list.add(str(j))
+            else:
+                port_list.add(str(i))
+        port_str = ",".join(port_list)
         scan_res = await self.loop.run_in_executor(
             None, nm.scan, ip, port_str
         )
@@ -67,7 +75,7 @@ class PortScan(object):
         while self.collection.find({"host_status": 0}):
             ip_list = self.collection.find(
                 {"host_status": 0}, {"host": 1, "_id": 0}
-            ).limit(10000)
+            ).limit(30000)
 
             ip_list = list(ip_list)
             ip_list = [i["host"] for i in ip_list]
