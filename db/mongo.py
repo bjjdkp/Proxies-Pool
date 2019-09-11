@@ -11,8 +11,9 @@ class Mongo(object):
         self.mongo_user = MONGO_USR
         self.mongo_pwd = MONGO_PWD
         self.host = MONGO_HOST
+        self.port = MONGO_PORT
         self.db_name = MONGO_DB_SOURCE
-        self.client = pymongo.MongoClient(self.host)
+        self.client = pymongo.MongoClient(self.host, self.port)
         self.db = self.client[self.db_name]
         self.db.authenticate(self.mongo_user, self.mongo_pwd,
                              mechanism='SCRAM-SHA-1')
