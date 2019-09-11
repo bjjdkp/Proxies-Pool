@@ -15,8 +15,8 @@ MAX_SCORE = 100
 MIN_SCORE = 0
 INITIAL_SCORE = 10
 
-# specify ports for scanning, such as ["22", "80", "8080", "10000-20000"]
-PORT_LIST = ["1-65535"]
+# string for ports as nmap use it "22,53,110,143-4564"
+PORT_STR = "1-65535"
 
 # check url
 # TODO: build check server
