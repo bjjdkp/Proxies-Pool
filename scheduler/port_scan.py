@@ -24,7 +24,6 @@ class PortScan(object):
         # async with self.semaphore:
         print("start scanning ip:%s" % ip)
         nm = nmap.PortScannerAsync()
-        nm.wait(180)
 
         scan_res = await self.loop.run_in_executor(
             None, nm.scan, ip, self.port_str
