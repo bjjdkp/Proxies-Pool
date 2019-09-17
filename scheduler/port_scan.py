@@ -14,6 +14,7 @@ class PortScan(object):
         self.source_ips_path = SOURCE_IPS_PATH
         self.collection = mongo.Mongo().get_conn(MONGO_COLLECTION_SOURCE)
         self.port_str = PORT_STR
+        self.scan_options = "-sV --host-timeout {}".format(SCAN_TIMEOUT)
 
     async def scan_ip(self, ip):
         """
@@ -26,7 +27,7 @@ class PortScan(object):
         nm = nmap.PortScanner()
 
         scan_res = await self.loop.run_in_executor(
-            None, nm.scan, ip, self.port_str
+            None, nm.scan, ip, self.port_str, self.scan_options
         )
 
         self._parse_save_scaninfo(ip, scan_res)

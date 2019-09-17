@@ -1,6 +1,6 @@
 # --*-- coding:utf-8 --*--
 
-# databases
+# MongoDB settings
 MONGO_HOST = "localhost"
 MONGO_PORT = 27017
 MONGO_DB_SOURCE = "proxy"
@@ -10,6 +10,11 @@ MONGO_COLLECTION_HTTPS = "https"
 MONGO_USR = "test"
 MONGO_PWD = "test"
 
+# RabbitMQ settings
+MQ_HOST = "localhost"
+MQ_USR = "guest"
+MQ_PWD = "guest"
+
 # score for proxy
 MAX_SCORE = 100
 MIN_SCORE = 0
@@ -17,6 +22,9 @@ INITIAL_SCORE = 10
 
 # string for ports as nmap use it "22,53,110,143-4564"
 PORT_STR = "1-65535"
+
+# timeout for scanning
+SCAN_TIMEOUT = 300
 
 # check url
 # TODO: build check server
