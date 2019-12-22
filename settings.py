@@ -12,6 +12,7 @@ MONGO_PWD = "test"
 
 # RabbitMQ settings
 MQ_HOST = "localhost"
+MQ_PORT = 5672
 MQ_USR = "guest"
 MQ_PWD = "guest"
 
